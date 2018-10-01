@@ -1,24 +1,116 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a rails app using GraphQL to query and mutate resources.
 
-Things you may want to cover:
+# Install
+`git clone git@github.com:ysksn/words.git`
 
-* Ruby version
+`bundle install`
 
-* System dependencies
+`bundle exec rails db:setup`
 
-* Configuration
+# Usage
 
-* Database creation
+`bundle exec rails s`
 
-* Database initialization
+Open a browser and go to [localhost](http://localhost:3000/graphiql/).
 
-* How to run the test suite
+### Query
+Please pass a `fullPath` of URL as an argument where you want to retrieve words of paragraphs.
 
-* Services (job queues, cache servers, search engines, etc.)
+| key | value | type | required? |
+| --- | --- | ---| --- |
+| `fullPath` | URL | `String` | `true` |
+| `order` | (`"desc"`\|`"asc"`) | `String` | `false` |
+| `limit` | num of words | `Int` | `false` |
+_(`limit` cannot exceed 100.)_
 
-* Deployment instructions
+```ruby
+{
+  words(fullPath: "http://www.sccsc.jp/", order: "desc", limit: 5) {
+    word
+    count
+  }
+}
+```
 
-* ...
+_result_
+
+```json
+{
+  "data": {
+    "words": [
+      {
+        "word": "訓練",
+        "count": 8
+      },
+      {
+        "word": "者",
+        "count": 8
+      },
+      {
+        "word": "職業",
+        "count": 5
+      },
+      {
+        "word": "方",
+        "count": 5
+      },
+      {
+        "word": "ハロー",
+        "count": 4
+      }
+    ]
+  }
+}
+```
+
+### Mutation
+
+```
+mutation crawlWords($input: CrawlWordsInput!) {
+  crawlWords(input: $input) {
+    source {
+      fullPath
+      crawledAt
+    }
+    errors
+  }
+}
+```
+
+#### query variables
+
+Please pass a `fullPath` of URL as an argument where you want to crawl words of paragraphs.
+
+| key | value | type | required? |
+| --- | --- | ---| --- |
+| `fullPath` | URL | `String` | `true` |
+
+```json
+{
+  "input": {
+    "fullPath": "http://www.sccsc.jp/"
+  }
+}
+```
+
+_result_
+
+```json
+{
+  "data": {
+    "crawlWords": {
+      "source": {
+        "fullPath": "http://www.sccsc.jp/",
+        "crawledAt": "2018-10-01 18:02:17 +0900"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+# Test
+
+`bundle exec rspec`

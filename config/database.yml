@@ -1,21 +1,24 @@
 default: &default
-  adapter: postgresql
-  encoding: unicode
+  adapter: sqlite3
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: db
-  username: postgres
-  password:
+  timeoute: 5000
 
 development:
   <<: *default
-  database: words_development
+  database: db/development.sqlite3
 
 test:
   <<: *default
-  database: words_test
+  database: db/test.sqlite3
 
 production:
   <<: *default
+  adapter: postgresql
+  encoding: unicode
+  host: localhost
+  port: 5432
+  username: postgres
+  password:
   database: words_production
   username: words
   password: <%= ENV['WORDS_DATABASE_PASSWORD'] %>
